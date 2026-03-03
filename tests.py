@@ -28,11 +28,11 @@ def main():
     # print(write_file(working_dir, "/tmp/temp.txt", "this should not be allowed")) 
     # print(write_file(working_dir, "pkg2/temp.txt", "this should be allowed")) 
 
-    print(run_python_file(working_dir, "main.py"))
-    print(run_python_file(working_dir, "main.py", ["3 + 5"]))
-    print(run_python_file(working_dir, "tests.py"))
-    print(run_python_file(working_dir, "../main.py"))
-    print(run_python_file(working_dir, "nonexistent.py"))
-    print(run_python_file(working_dir, "lorem.txt"))
+    # print(run_python_file(working_dir, "main.py"))
+    # print(run_python_file(working_dir, "main.py", ["3 + 5"]))
+    # print(run_python_file(working_dir, "tests.py"))
+    # print(run_python_file(working_dir, "../main.py"))
+    # print(run_python_file(working_dir, "nonexistent.py"))
+    # print(run_python_file(working_dir, "lorem.txt"))
 
 main()

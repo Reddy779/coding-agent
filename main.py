@@ -3,7 +3,11 @@ import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from functions.get_files_info import get_files_info
+from functions.get_files_info import schema_get_files_info
+from functions.get_file_content import schema_get_file_content
+from functions.run_python_file import schema_run_python_file
+from functions.write_file import schema_write_file
+
 
 def main():
 
@@ -16,7 +20,20 @@ def main():
         print("I need a Prompt!")
         sys.exit(1)
     verbose_flag = False
-    
+
+    system_prompt = """
+        You are a helpful AI coding agent.
+
+        When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
+
+        - List files and directories
+        - Read the content of a file
+        - write to a file (create or update)
+        - Run a Python file with optional arguments
+
+        All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
+    """
+
     if len(sys.argv) == 3 and sys.argv[2] == "--verbose":
         verbose_flag = True
     prompt = sys.argv[1]
@@ -25,21 +42,39 @@ def main():
         types.Content(role="user", parts=[types.Part(text=prompt)])
     ]
 
-    response = client.models.generate_content(
-        model="gemini-3-flash-preview",
-        contents=message
+    available_functions = types.Tool(
+        function_declarations=[
+            schema_get_files_info,
+            schema_get_file_content,
+            schema_write_file,
+            schema_run_python_file
+            ],
     )
 
+    config=types.GenerateContentConfig(
+        tools=[available_functions], system_instruction=system_prompt
+    )
+
+    response = client.models.generate_content (
+        model="gemini-3-flash-preview",
+        contents=message,
+        config=config
+    )
 
     if response is None or response.usage_metadata is None:
         print("response is malformed")
         return 
     
-    print(f"\n{response.text}")
     if verbose_flag:
         print(f"User prompt: {prompt}")
         print(f"Prompt token: {response.usage_metadata.prompt_token_count}")
         print(f"Candidate  token: {response.usage_metadata.candidates_token_count}")
+
+    if response.function_calls:
+        for function_call_part in response.function_calls:
+            print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+    else: 
+        print(f"\n{response.text}")  
 
 main()
 # print(get_files_info("calculator", "pkg"))
