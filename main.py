@@ -14,7 +14,7 @@ def main():
     load_dotenv()
     api_key = os.environ.get("GEMINI_API_KEY")
 
-    client = genai.Client(api_key=api_key)
+    client = genai.Client(api_key=api_key, http_options={"api_version": "v1"})
 
     if len(sys.argv) < 2:
         print("I need a Prompt!")
@@ -48,35 +48,49 @@ def main():
             schema_get_file_content,
             schema_write_file,
             schema_run_python_file
-            ],
+        ],
     )
 
-    config=types.GenerateContentConfig(
+    config = types.GenerateContentConfig(
         tools=[available_functions], system_instruction=system_prompt
     )
 
-    response = client.models.generate_content (
-        model="gemini-3-flash-preview",
-        # model="gemini-1.5-pro",
-        # model="gemini-1.5-flash",
-        contents=message,
-        config=config
-    )
+    max_iters = 15
+    for i in range(0, max_iters):
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=message,
+            config=config
+        )
 
-    if response is None or response.usage_metadata is None:
-        print("response is malformed")
-        return 
-    
-    if verbose_flag:
-        print(f"User prompt: {prompt}")
-        print(f"Prompt token: {response.usage_metadata.prompt_token_count}")
-        print(f"Candidate  token: {response.usage_metadata.candidates_token_count}")
+        if response is None or response.usage_metadata is None:
+            print("response is malformed")
+            return
 
-    if response.function_calls:
-        for function_call_part in response.function_calls:
-            result = call_function(function_call_part, verbose_flag)
-            print(result)
-    else: 
-        print(f"\n{response.text}")  
+        if verbose_flag:
+            print(f"User prompt: {prompt}")
+            print(f"Prompt token: {response.usage_metadata.prompt_token_count}")
+            print(f"Candidate  token: {response.usage_metadata.candidates_token_count}")
+
+        if response.candidates:
+            for candidate in response.candidates:
+                if candidate is None or candidate.content is None:
+                    continue
+                message.append(candidate.content)
+
+        if response.function_calls:
+            function_response_parts = []
+            for function_call_part in response.function_calls:
+                if verbose_flag:
+                    print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+                result = call_function(function_call_part, verbose_flag)
+                function_response_parts.append(result)
+
+            message.append(
+                types.Content(role="tool", parts=function_response_parts)
+            )
+        else:
+            print(f"\n{response.text}")
+            return
 
 main()
