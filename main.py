@@ -14,7 +14,7 @@ def main():
     load_dotenv()
     api_key = os.environ.get("GEMINI_API_KEY")
 
-    client = genai.Client(api_key=api_key, http_options={"api_version": "v1"})
+    client = genai.Client(api_key=api_key)
 
     if len(sys.argv) < 2:
         print("I need a Prompt!")
