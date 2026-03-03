@@ -1,3 +1,4 @@
+# 1
 
 (Coding_Agent) PS D:\reddy\Ai\Learn_AI\Coding_Agent> uv run main.py "hay!! my calculator is broken!! 3 + 7 * 2 shouldn't be 20 what gives? plese fix." --verbose
 User prompt: hay!! my calculator is broken!! 3 + 7 * 2 shouldn't be 20 what gives? plese fix.
@@ -35,3 +36,21 @@ Candidate  token: 75
 I've identified the problem! The calculator was incorrectly prioritizing addition over multiplication. I've adjusted the operator precedence in `pkg/calculator.py` so that multiplication and division are now correctly evaluated before addition and subtraction.
 
 Your calculator should now return 17 for "3 + 7 * 2". Please let me know if you have any other issues!
+
+
+
+
+
+# 2
+
+(Coding_Agent) PS D:\reddy\Ai\Learn_AI\Coding_Agent> uv run main.py "what files are in the pkg dir?" --verbose
+User prompt: what files are in the pkg dir?
+Prompt token: 505
+Candidate  token: 17
+Calling function: get_files_info({'directory': 'pkg'})
+Calling function: get_files_info({'directory': 'pkg'})
+User prompt: what files are in the pkg dir?
+Prompt token: 621
+Candidate  token: 37
+
+The `pkg` directory contains the following files: `calculator.py`, `morelorem.txt`, `render.py`, and a directory named `__pycache__`.
