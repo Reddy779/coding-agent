@@ -3,6 +3,7 @@ import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from functions.get_files_info import get_files_info
 
 def main():
 
@@ -15,6 +16,7 @@ def main():
         print("I need a Prompt!")
         sys.exit(1)
     verbose_flag = False
+    
     if len(sys.argv) == 3 and sys.argv[2] == "--verbose":
         verbose_flag = True
     prompt = sys.argv[1]
@@ -40,3 +42,4 @@ def main():
         print(f"Candidate  token: {response.usage_metadata.candidates_token_count}")
 
 main()
+# print(get_files_info("calculator", "pkg"))
